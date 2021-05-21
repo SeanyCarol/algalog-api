@@ -2,6 +2,8 @@ package com.algaworks.algalog.api.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import com.algaworks.algalog.domain.model.Client;
 import com.algaworks.algalog.domain.repository.ClientRepository;
 
@@ -39,12 +41,12 @@ public class ClientController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Client adicionar(@RequestBody Client client) {
+  public Client adicionar(@Valid @RequestBody Client client) {
     return clientRepository.save(client);
   }
 
   @PutMapping("/{clientId}")
-  public ResponseEntity<Client> atualizar(@PathVariable Long clientId, @RequestBody Client client) {
+  public ResponseEntity<Client> atualizar(@PathVariable Long clientId, @Valid @RequestBody Client client) {
     if(!clientRepository.existsById(clientId)) {
       return ResponseEntity.notFound().build();
     }
