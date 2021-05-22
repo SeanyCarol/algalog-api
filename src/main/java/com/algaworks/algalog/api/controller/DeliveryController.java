@@ -10,6 +10,7 @@ import com.algaworks.algalog.api.model.input.DeliveryInput;
 import com.algaworks.algalog.domain.model.Delivery;
 import com.algaworks.algalog.domain.repository.DeliveryRepository;
 import com.algaworks.algalog.domain.service.DeliveryRequestService;
+import com.algaworks.algalog.domain.service.FinalizingDeliveryService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,6 +36,9 @@ public class DeliveryController {
 
   @Autowired
   private DeliveryAssembler deliveryAssembler;
+
+  @Autowired
+  private FinalizingDeliveryService finalizingDeliveryService;
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
@@ -54,5 +59,11 @@ public class DeliveryController {
     return deliveryRepository.findById(deliveryId)
       .map(delivery -> ResponseEntity.ok(deliveryAssembler.toModel(delivery)))
       .orElse(ResponseEntity.notFound().build());
+  }
+
+  @PutMapping("/{deliveryId}/finalizacao")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void finish(@PathVariable Long deliveryId) {
+    finalizingDeliveryService.finish(deliveryId);
   }
 }
