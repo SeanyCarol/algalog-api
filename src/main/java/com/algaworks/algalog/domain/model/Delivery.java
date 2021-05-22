@@ -1,5 +1,7 @@
 package com.algaworks.algalog.domain.model;
 
+import com.algaworks.algalog.domain.ValidationGroups;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -11,6 +13,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
+import javax.validation.groups.ConvertGroup;
+import javax.validation.groups.Default;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -30,12 +37,18 @@ public class Delivery {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Valid
+  @ConvertGroup(from = Default.class, to = ValidationGroups.ClientId.class)
+  @NotNull
   @ManyToOne
   private Client client;
 
+  @Valid
+  @NotNull
   @Embedded
   private Recipient recipient;
 
+  @NotNull
   private BigDecimal rate;
 
   @JsonProperty(access = Access.READ_ONLY)
