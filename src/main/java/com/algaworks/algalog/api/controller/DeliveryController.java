@@ -4,8 +4,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.algaworks.algalog.api.assembler.DeliveryAssembler;
 import com.algaworks.algalog.api.model.DeliveryModel;
-import com.algaworks.algalog.api.model.RecipientModel;
+import com.algaworks.algalog.api.model.input.DeliveryInput;
 import com.algaworks.algalog.domain.model.Delivery;
 import com.algaworks.algalog.domain.repository.DeliveryRepository;
 import com.algaworks.algalog.domain.service.DeliveryRequestService;
@@ -31,37 +32,27 @@ public class DeliveryController {
   @Autowired
   private DeliveryRequestService deliveryRequestService;
 
+  @Autowired
+  private DeliveryAssembler deliveryAssembler;
+
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Delivery request(@Valid @RequestBody Delivery delivery) {
-    return deliveryRequestService.request(delivery);
+  public DeliveryModel request(@Valid @RequestBody DeliveryInput deliveryInput) {
+    Delivery newDelivery = deliveryAssembler.toEntity(deliveryInput);
+    Delivery requestedDelivery = deliveryRequestService.request(newDelivery);
+    
+    return deliveryAssembler.toModel(requestedDelivery);
   }
 
   @GetMapping
-  public List<Delivery> list() {
-    return deliveryRepository.findAll();
+  public List<DeliveryModel> list() {
+    return deliveryAssembler.toCollectionModel(deliveryRepository.findAll());
   }
 
   @GetMapping("/{deliveryId}")
-  public ResponseEntity<DeliveryModel> get(@PathVariable Long deliveryId) {
+  public ResponseEntity<DeliveryModel> search(@PathVariable Long deliveryId) {
     return deliveryRepository.findById(deliveryId)
-      .map(delivery -> {
-        DeliveryModel deliveryModel = new DeliveryModel();
-        deliveryModel.setId(delivery.getId());
-        deliveryModel.setClientName(delivery.getClient().getName());
-        deliveryModel.setRecipient(new RecipientModel());
-        deliveryModel.getRecipient().setName(delivery.getRecipient().getName());
-        deliveryModel.getRecipient().setPublicArea(delivery.getRecipient().getPublicArea());
-        deliveryModel.getRecipient().setNumber(delivery.getRecipient().getNumber());
-        deliveryModel.getRecipient().setAddressComplement(delivery.getRecipient().getAddressComplement());
-        deliveryModel.getRecipient().setNeighborhood(delivery.getRecipient().getNeighborhood());
-        deliveryModel.setRate(delivery.getRate());
-        deliveryModel.setStatus(delivery.getStatus());
-        deliveryModel.setOrderDate(delivery.getOrderDate());
-        deliveryModel.setFinalizationDate(delivery.getFinalizationDate());
-
-        return ResponseEntity.ok(deliveryModel);
-      })
+      .map(delivery -> ResponseEntity.ok(deliveryAssembler.toModel(delivery)))
       .orElse(ResponseEntity.notFound().build());
   }
 }
