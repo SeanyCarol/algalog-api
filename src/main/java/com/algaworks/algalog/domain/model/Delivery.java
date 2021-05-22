@@ -3,7 +3,7 @@ package com.algaworks.algalog.domain.model;
 import com.algaworks.algalog.domain.ValidationGroups;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -56,8 +56,8 @@ public class Delivery {
   private DeliveryStatus status;
 
   @JsonProperty(access = Access.READ_ONLY)
-  private LocalDateTime orderDate;
+  private OffsetDateTime orderDate;
 
   @JsonProperty(access = Access.READ_ONLY)
-  private LocalDateTime finalizationDate;
+  private OffsetDateTime finalizationDate;
 }
