@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.algaworks.algalog.api.model.DeliveryModel;
+import com.algaworks.algalog.api.model.RecipientModel;
 import com.algaworks.algalog.domain.model.Delivery;
 import com.algaworks.algalog.domain.repository.DeliveryRepository;
 import com.algaworks.algalog.domain.service.DeliveryRequestService;
@@ -41,9 +43,25 @@ public class DeliveryController {
   }
 
   @GetMapping("/{deliveryId}")
-  public ResponseEntity<Delivery> get(@PathVariable Long deliveryId) {
+  public ResponseEntity<DeliveryModel> get(@PathVariable Long deliveryId) {
     return deliveryRepository.findById(deliveryId)
-      .map(ResponseEntity::ok)
+      .map(delivery -> {
+        DeliveryModel deliveryModel = new DeliveryModel();
+        deliveryModel.setId(delivery.getId());
+        deliveryModel.setClientName(delivery.getClient().getName());
+        deliveryModel.setRecipient(new RecipientModel());
+        deliveryModel.getRecipient().setName(delivery.getRecipient().getName());
+        deliveryModel.getRecipient().setPublicArea(delivery.getRecipient().getPublicArea());
+        deliveryModel.getRecipient().setNumber(delivery.getRecipient().getNumber());
+        deliveryModel.getRecipient().setAddressComplement(delivery.getRecipient().getAddressComplement());
+        deliveryModel.getRecipient().setNeighborhood(delivery.getRecipient().getNeighborhood());
+        deliveryModel.setRate(delivery.getRate());
+        deliveryModel.setStatus(delivery.getStatus());
+        deliveryModel.setOrderDate(delivery.getOrderDate());
+        deliveryModel.setFinalizationDate(delivery.getFinalizationDate());
+
+        return ResponseEntity.ok(deliveryModel);
+      })
       .orElse(ResponseEntity.notFound().build());
   }
 }
