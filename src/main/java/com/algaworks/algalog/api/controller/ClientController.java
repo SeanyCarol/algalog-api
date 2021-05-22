@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import com.algaworks.algalog.domain.model.Client;
 import com.algaworks.algalog.domain.repository.ClientRepository;
+import com.algaworks.algalog.domain.service.ClientCatalogService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,13 +28,16 @@ public class ClientController {
   @Autowired
   private ClientRepository clientRepository;
 
+  @Autowired
+  private ClientCatalogService catalogoClientService;
+
   @GetMapping
-  public List<Client> listar() {
+  public List<Client> list() {
     return clientRepository.findAll();
   }
  
   @GetMapping("/{clientId}")
-  public ResponseEntity<Client> buscar(@PathVariable Long clientId) {
+  public ResponseEntity<Client> get(@PathVariable Long clientId) {
     return clientRepository.findById(clientId)
       .map(client -> ResponseEntity.ok(client))
       .orElse(ResponseEntity.notFound().build());
@@ -41,29 +45,29 @@ public class ClientController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Client adicionar(@Valid @RequestBody Client client) {
-    return clientRepository.save(client);
+  public Client add(@Valid @RequestBody Client client) {
+    return catalogoClientService.save(client);
   }
 
   @PutMapping("/{clientId}")
-  public ResponseEntity<Client> atualizar(@PathVariable Long clientId, @Valid @RequestBody Client client) {
+  public ResponseEntity<Client> upgrade(@PathVariable Long clientId, @Valid @RequestBody Client client) {
     if(!clientRepository.existsById(clientId)) {
       return ResponseEntity.notFound().build();
     }
 
     client.setId(clientId);
-    client = clientRepository.save(client);
+    client = catalogoClientService.save(client);
 
     return ResponseEntity.ok(client);
   }
 
   @DeleteMapping("/{clientId}")
-  public ResponseEntity<Void> remover(@PathVariable Long clientId) {
+  public ResponseEntity<Void> remove(@PathVariable Long clientId) {
     if(!clientRepository.existsById(clientId)) {
       return ResponseEntity.notFound().build();
     }
 
-    clientRepository.deleteById(clientId);
+    catalogoClientService.delete(clientId);
     
     return ResponseEntity.noContent().build();
   }
